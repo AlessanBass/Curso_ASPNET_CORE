@@ -17,7 +17,7 @@ public class AppDbContext : DbContext
         Deixando a propriedade como nulable, podemos garanntir que a propriedade
          seja opcional
      */
-    public DbSet<Categoria> Categorias {get; set;}
-    public DbSet<Produto> Produtos {get; set;}
+    public DbSet<Categoria>? Categorias {get; set;}
+    public DbSet<Produto>? Produtos {get; set;}
 
 }
