@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace APICatalogo.Models;
 /* 
@@ -31,5 +32,7 @@ public class Categoria
     /* Para relacionar, precisamos incluir uma propriedade de navegação que indica
         que categoria pode ter uma coleção de produtos
      */
+
+     //[JsonIgnore]
      public ICollection<Produto>? Produtos {get; set;} // Isso já seria o suficente
 }
