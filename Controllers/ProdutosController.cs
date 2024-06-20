@@ -7,7 +7,7 @@ namespace APICatalogo.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ProdutosController : ControllerBase
+public class ProdutosController : ControllerBase /* Extrari o nome da rota com base no nome da classe */
 {
     /*
         Para utilizar o banco de dados precisamos fazer uma injeção de dependecia
@@ -20,16 +20,17 @@ public class ProdutosController : ControllerBase
     }
 
     //Metodo GEt -> Obtem todos os produtos
-    [HttpGet]
-    public  ActionResult<IEnumerable<Produto>> Get(){
-        var produtos = _context.Produtos.ToList();
+    [HttpGet] /* /produtos */
+    public  async Task<ActionResult<IEnumerable<Produto>>> GetAsync(){
+        var produtos = await  _context.Produtos.ToListAsync();
         if(produtos is null){
             return NotFound("Produtos não encontrados");
         }
         return produtos;
     }
 
-    [HttpGet("id", Name ="ObterProduto")]
+    /* Incluindo restrição nos paramentros */
+    [HttpGet("id:int:min(1)", Name ="ObterProduto")]
     public ActionResult<Produto> Get(int id){
         var produto = _context.Produtos.FirstOrDefault(p => p.ProdutoId == id);
         if(produto is null){
