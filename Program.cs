@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using APICatalogo.Context;
+using APICatalogo.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,9 @@ var mysqlConnection = builder.Configuration.GetConnectionString("DefaultConnecti
 builder.Services.AddDbContext<AppDbContext>(options => 
     options.UseMySql(mysqlConnection, 
     ServerVersion.AutoDetect(mysqlConnection)));
+
+/* Precisamos registrar os serviços */
+builder.Services.AddScoped<ICategoriaRepository,CategoriaRepository>();
 
 var app = builder.Build();
 

@@ -33,6 +33,6 @@ public class Categoria
         que categoria pode ter uma coleção de produtos
      */
 
-     //[JsonIgnore]
+     [JsonIgnore]
      public ICollection<Produto>? Produtos {get; set;} // Isso já seria o suficente
 }

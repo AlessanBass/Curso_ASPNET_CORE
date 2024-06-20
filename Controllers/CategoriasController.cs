@@ -1,5 +1,6 @@
 ﻿using APICatalogo.Context;
 using APICatalogo.Models;
+using APICatalogo.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,34 +10,38 @@ namespace APICatalogo.Controllers;
 [Route("[controller]")]
 public class CategoriasController : ControllerBase
 {
-    private readonly AppDbContext _context;
-    public CategoriasController(AppDbContext context)
+    /*
+        Aqui utilizamos uma Interface por nos dar mais flexibilidade, pois como é um interface
+         podemos ter diversas implementações dos métodos.
+     */
+    private readonly ICategoriaRepository _repository;
+    public CategoriasController(ICategoriaRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Categoria>> GetAll(){
-        var categorias = _context.Categorias.ToList();
+    public async Task<ActionResult<IEnumerable<Categoria>>> GetAll(){
+        var categorias = await _repository.GetCategorias();
         if(categorias is null){
             return NotFound("Nenhuma categoria encontrada!");
         }
 
-        return categorias;
+        return Ok(categorias); /* Retorna um 200 */
     }
 
     [HttpGet("id", Name ="ObterCategoria")]
-    public ActionResult<Categoria> GetOneId(int id){
-        var categoria = _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
+    public async Task<ActionResult<Categoria>> GetOneId(int id){
+        var categoria = await _repository.GetCategoria(id);
 
          if(categoria is null){
             return NotFound("Categoria não encontrada!");
         }
 
-        return categoria;
+        return Ok(categoria); /* Retorna um 200 */
     }
 
-    [HttpGet("produtos/id_categoria")]
+   /*  [HttpGet("produtos/id_categoria")]
     public ActionResult<IEnumerable<Categoria>> GetAllCategoriaProduto(int id_categoria){
         var produtosPorCategoria = _context.Categorias.Include(p=> p.Produtos).Where(c=> c.CategoriaId == id_categoria).ToList();
 
@@ -46,41 +51,40 @@ public class CategoriasController : ControllerBase
 
         return produtosPorCategoria;
 
-    }
+    } */
 
     [HttpPost]
-    public ActionResult Post(Categoria categoria){
+    public async Task<ActionResult> Post(Categoria categoria){
         if(categoria is null){
             return BadRequest();
         }
         //Precisamos incluir o produto no contexto
-        _context.Add(categoria);
-        _context.SaveChanges(); //Persiste os dados na tabela
+        //_context.Add(categoria);
+       // _context.SaveChanges(); //Persiste os dados na tabela
+       var redultado = await _repository.Create(categoria);
 
-        return new CreatedAtRouteResult("ObterCategoria", new {id = categoria.CategoriaId}, categoria);
+
+        return new CreatedAtRouteResult("ObterCategoria", new {id = redultado.CategoriaId}, redultado);
     }
 
     [HttpPut("id")]
-    public ActionResult Put(int id, Categoria categoria){
+    public async Task<ActionResult> Put(int id, Categoria categoria){
         if(id != categoria.CategoriaId){
             return BadRequest();
         }
 
-        _context.Entry(categoria).State = EntityState.Modified;
-        _context.SaveChanges();
-
+       await _repository.Update(categoria);
         return Ok(categoria);
     }
 
     [HttpDelete("id")]
-    public ActionResult Delete (int id){
-        var categoria = _context.Categorias.FirstOrDefault(c => c.CategoriaId == id);
+    public async Task<ActionResult> Delete (int id){
+        var categoria = await _repository.GetCategoria(id);
         if(categoria is null){
             return NotFound("Categoria não encontrado");
         }
 
-        _context.Categorias.Remove(categoria);
-        _context.SaveChanges();
+       await _repository.Delete(id);
 
         return Ok(categoria);
     }
