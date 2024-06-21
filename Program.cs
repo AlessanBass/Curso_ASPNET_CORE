@@ -26,6 +26,8 @@ builder.Services.AddScoped<ICategoriaRepository,CategoriaRepository>();
 builder.Services.AddScoped<IProdutoRepository,ProdutoRepository>();
 /* AddScoped não permite tipos genercios etão faremos o seguite: */
 builder.Services.AddScoped(typeof(IRepository<>),typeof(Repository<>));
+builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+
 
 var app = builder.Build();
 
