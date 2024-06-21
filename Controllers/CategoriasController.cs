@@ -14,15 +14,15 @@ public class CategoriasController : ControllerBase
         Aqui utilizamos uma Interface por nos dar mais flexibilidade, pois como é um interface
          podemos ter diversas implementações dos métodos.
      */
-    private readonly ICategoriaRepository _repository;
-    public CategoriasController(ICategoriaRepository repository)
+    private readonly IUnitOfWork _uof;
+    public CategoriasController(IUnitOfWork uof)
     {
-        _repository = repository;
+        _uof = uof;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Categoria>>> GetAll(){
-        var categorias = await _repository.GetCategorias();
+        var categorias = await _uof.CategoriaRepository.GetCategorias();
         if(categorias is null){
             return NotFound("Nenhuma categoria encontrada!");
         }
@@ -32,7 +32,7 @@ public class CategoriasController : ControllerBase
 
     [HttpGet("id", Name ="ObterCategoria")]
     public async Task<ActionResult<Categoria>> GetOneId(int id){
-        var categoria = await _repository.GetCategoria(id);
+        var categoria = await _uof.CategoriaRepository.GetCategoria(id);
 
          if(categoria is null){
             return NotFound("Categoria não encontrada!");
@@ -61,7 +61,8 @@ public class CategoriasController : ControllerBase
         //Precisamos incluir o produto no contexto
         //_context.Add(categoria);
        // _context.SaveChanges(); //Persiste os dados na tabela
-       var redultado = await _repository.Create(categoria);
+       var redultado = await _uof.CategoriaRepository.Create(categoria);
+       await _uof.SaveChangesAsync();
 
 
         return new CreatedAtRouteResult("ObterCategoria", new {id = redultado.CategoriaId}, redultado);
@@ -73,18 +74,20 @@ public class CategoriasController : ControllerBase
             return BadRequest();
         }
 
-       await _repository.Update(categoria);
+       await _uof.CategoriaRepository.Update(categoria);
+       await _uof.SaveChangesAsync();
         return Ok(categoria);
     }
 
     [HttpDelete("id")]
     public async Task<ActionResult> Delete (int id){
-        var categoria = await _repository.GetCategoria(id);
+        var categoria = await _uof.CategoriaRepository.GetCategoria(id);
         if(categoria is null){
             return NotFound("Categoria não encontrado");
         }
 
-       await _repository.Delete(id);
+       await _uof.CategoriaRepository.Delete(id);
+       await _uof.SaveChangesAsync();
 
         return Ok(categoria);
     }

@@ -52,6 +52,7 @@ public class ProdutosController : ControllerBase /* Extrari o nome da rota com b
         }
         
         var produtoCreate = await _uof.ProdutoRepository.Create(produto);
+        await _uof.SaveChangesAsync();
 
         return new CreatedAtRouteResult("ObterProduto", new {id = produtoCreate.ProdutoId}, produtoCreate);
     }
@@ -63,6 +64,7 @@ public class ProdutosController : ControllerBase /* Extrari o nome da rota com b
         }
 
        var produtoAtualizado = await _uof.ProdutoRepository.Update(produto);
+       await _uof.SaveChangesAsync();
 
         return Ok(produtoAtualizado);
     }
@@ -75,6 +77,7 @@ public class ProdutosController : ControllerBase /* Extrari o nome da rota com b
         }
 
         await _uof.ProdutoRepository.Delete(produto);
+        await _uof.SaveChangesAsync();
 
         return Ok(produto);
     }
