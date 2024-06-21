@@ -23,6 +23,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 /* Precisamos registrar os serviços */
 builder.Services.AddScoped<ICategoriaRepository,CategoriaRepository>();
+builder.Services.AddScoped<IProdutoRepository,ProdutoRepository>();
+/* AddScoped não permite tipos genercios etão faremos o seguite: */
+builder.Services.AddScoped(typeof(IRepository<>),typeof(Repository<>));
 
 var app = builder.Build();
 
