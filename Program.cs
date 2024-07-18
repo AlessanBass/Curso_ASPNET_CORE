@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using APICatalogo.Context;
+using APICatalogo.DTOs.Mappings;
 using APICatalogo.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +28,7 @@ builder.Services.AddScoped<IProdutoRepository,ProdutoRepository>();
 /* AddScoped não permite tipos genercios etão faremos o seguite: */
 builder.Services.AddScoped(typeof(IRepository<>),typeof(Repository<>));
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+builder.Services.AddAutoMapper(typeof(ProdutoDTOMappingProfile)); // Nome da classe onde tá definido o mapeamento
 
 
 var app = builder.Build();

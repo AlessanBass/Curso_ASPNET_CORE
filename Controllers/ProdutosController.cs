@@ -1,6 +1,8 @@
 ﻿using APICatalogo.Context;
+using APICatalogo.DTOs;
 using APICatalogo.Models;
 using APICatalogo.Repositories;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,37 +22,41 @@ public class ProdutosController : ControllerBase /* Extrari o nome da rota com b
      
       */
     private readonly IUnitOfWork _uof;
-    public ProdutosController(IUnitOfWork uof)
+    private readonly IMapper _mapper;
+    public ProdutosController(IUnitOfWork uof, IMapper mapper)
     {
         _uof = uof;
+        _mapper = mapper;
     }
 
     //Metodo GEt -> Obtem todos os produtos
     [HttpGet] /* /produtos */
-    public  async Task<ActionResult<IEnumerable<Produto>>> GetAsync(){
+    public  async Task<ActionResult<IEnumerable<ProdutoDTO>>> GetAsync(){
         var produtos = await _uof.ProdutoRepository.GetAll();
-        return Ok(produtos);
+        var produtosDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produtos);
+        return Ok(produtosDTO);
     }
 
     /* Incluindo restrição nos paramentros */
     [HttpGet("id:int:min(1)", Name ="ObterProduto")]
-    public async Task<ActionResult<Produto>> Get(int id){
+    public async Task<ActionResult<ProdutoDTO>> Get(int id){
         var produto = await _uof.ProdutoRepository.Get(p=> p.ProdutoId == id);
         return Ok(produto);
     }
 
     [HttpGet("/ProdutosPorCategoria/{id}")]
-    public async Task<ActionResult<Produto>> GetProdutoPorCategoria(int id){
+    public async Task<ActionResult<ProdutoDTO>> GetProdutoPorCategoria(int id){
         var produto = await _uof.ProdutoRepository.GetProdutosPorCategoria(id);
-        return Ok(produto);
+        var produtoDTO = _mapper.Map<IEnumerable<ProdutoDTO>>(produto);
+        return Ok(produtoDTO);
     }
 
     [HttpPost]
-    public async Task<ActionResult> Post(Produto produto){
-        if(produto is null){
+    public async Task<ActionResult<ProdutoDTO>> Post(ProdutoDTO produtoDTO){
+        if(produtoDTO is null){
             return BadRequest();
         }
-        
+        var produto = _mapper.Map<Produto>(produtoDTO);
         var produtoCreate = await _uof.ProdutoRepository.Create(produto);
         await _uof.SaveChangesAsync();
 
@@ -58,11 +64,12 @@ public class ProdutosController : ControllerBase /* Extrari o nome da rota com b
     }
 
     [HttpPut("id")]
-    public async Task<ActionResult> Put(int id, Produto produto){
-        if(id != produto.ProdutoId){
+    public async Task<ActionResult<ProdutoDTO>> Put(int id, ProdutoDTO produtoDTO){
+        if(id != produtoDTO.ProdutoId){
             return BadRequest();
         }
 
+       var produto = _mapper.Map<Produto>(produtoDTO);
        var produtoAtualizado = await _uof.ProdutoRepository.Update(produto);
        await _uof.SaveChangesAsync();
 
@@ -70,7 +77,7 @@ public class ProdutosController : ControllerBase /* Extrari o nome da rota com b
     }
 
     [HttpDelete("id")]
-    public async Task<ActionResult> Delete (int id){
+    public async Task<ActionResult<ProdutoDTO>> Delete (int id){
         var produto = await _uof.ProdutoRepository.Get(c=>c.ProdutoId == id);;
         if(produto is null){
             return NotFound("Produto não encontrado");
